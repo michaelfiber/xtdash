@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <raylib.h>
+#include <rlgl.h>
 
 const char bandwidth_path[] = "/proc/net/dev";
 const char ram_path[] = "/proc/meminfo";
@@ -21,6 +22,9 @@ static int total_bytes = 0;
 static int mbps = 0;
 
 static Color faded_orange = (Color){255, 161, 0, 74};
+static Color dark_faded_orange = (Color){255, 161, 0, 50};
+static Color darkest_faded_orange = (Color){255, 161, 0, 35};
+static Color dark_orange = (Color){200, 130, 0, 255};
 static Color bg = (Color){30, 30, 30, 255};
 static Color lines = (Color){255, 245, 245, 200};
 
@@ -291,7 +295,7 @@ void get_bandwidth()
             length = 0;
             continue;
         }
-        
+
         line[length++] = c;
 
     } while (1);
@@ -301,12 +305,29 @@ void get_bandwidth()
         mbps = (total_bytes - last_bytes) / 1024 / 1024;
     }
 
-    fclose(f);    
+    fclose(f);
+}
+
+void draw_quad(Color color, Vector2 topLeft, Vector2 topRight, Vector2 bottomLeft, Vector2 bottomRight)
+{
+    rlBegin(RL_TRIANGLES);
+
+    rlColor4ub(color.r, color.g, color.b, color.a);
+
+    rlVertex2f(topLeft.x, topLeft.y);
+    rlVertex2f(bottomLeft.x, bottomLeft.y);
+    rlVertex2f(topRight.x, topRight.y);
+
+    rlVertex2f(topRight.x, topRight.y);
+    rlVertex2f(bottomLeft.x, bottomLeft.y);
+    rlVertex2f(bottomRight.x, bottomRight.y);
+
+    rlEnd();
 }
 
 int main(void)
 {
-    InitWindow(1366, 400, "XT Dashboard");
+    InitWindow(1360, 400, "XT Dashboard");
     SetTargetFPS(30);
 
     char out_temp_text[] = "CPU TEMP";
@@ -350,10 +371,82 @@ int main(void)
         DrawRectangle(GetScreenWidth() / 2 - 400, 230 + (80 - 80 * cpu_temp_f), 40, 80 * cpu_temp_f, ORANGE);
         DrawText("TEMP", GetScreenWidth() / 2 - 390, 315, GetFontDefault().baseSize * 2, ORANGE);
 
+        Vector2 tl = (Vector2){
+            GetScreenWidth() / 2 - 358,
+            230};
+
+        Vector2 tr = (Vector2){
+            tl.x + 50,
+            210};
+
+        Vector2 bl = (Vector2){
+            tl.x,
+            310};
+
+        Vector2 br = (Vector2){
+            bl.x + 50,
+            280};
+        draw_quad(dark_faded_orange, tl, tr, bl, br);
+
+        tl.y += 80 - 80 * cpu_temp_f;
+        tr.y += 70 - 70 * cpu_temp_f;
+        draw_quad(dark_orange, tl, tr, bl, br);
+
+        draw_quad(darkest_faded_orange,
+                  (Vector2){GetScreenWidth() / 2 - 340, 210},
+                  (Vector2){GetScreenWidth() / 2 - 312, 210},
+                  (Vector2){GetScreenWidth() / 2 - 400, 228},
+                  (Vector2){GetScreenWidth() / 2 - 358, 228});
 
         DrawRectangle(GetScreenWidth() / 2 + 360, 230, 40, 80, faded_orange);
         DrawRectangle(GetScreenWidth() / 2 + 360, 230 + (80 - 80 * free_mem_f), 40, 80 * free_mem_f, ORANGE);
         DrawText("RAM", GetScreenWidth() / 2 + 350, 315, GetFontDefault().baseSize * 2, ORANGE);
+
+        tr.x = GetScreenWidth() / 2 + 358;
+        tr.y = 230;
+        tl.x = tr.x - 50;
+        tl.y = 210;
+
+        bl.x = tl.x;
+        bl.y = 280;
+
+        br.x = tr.x;
+        br.y = 310;
+        draw_quad(dark_faded_orange, tl, tr, bl, br);
+
+        tr.y += 80 - 80 * free_mem_f;
+        tl.y += 70 - 70 * free_mem_f;
+        draw_quad(dark_orange, tl, tr, bl, br);
+
+        draw_quad(darkest_faded_orange,
+                  (Vector2){GetScreenWidth() / 2 + 312, 210},
+                  (Vector2){GetScreenWidth() / 2 + 340, 210},
+                  (Vector2){GetScreenWidth() / 2 + 358, 228},
+                  (Vector2){GetScreenWidth() / 2 + 400, 228});
+
+        draw_quad(faded_orange,
+                  (Vector2){GetScreenWidth() / 2 - 5, 210},
+                  (Vector2){GetScreenWidth() / 2 + 5, 210},
+                  (Vector2){GetScreenWidth() / 2 - 120, 320},
+                  (Vector2){GetScreenWidth() / 2 + 120, 320});
+
+        draw_quad(faded_orange,
+                  (Vector2){GetScreenWidth() / 2 - 25, 210},
+                  (Vector2){GetScreenWidth() / 2 - 10, 210},
+                  (Vector2){GetScreenWidth() / 2 - 200, 300},
+                  (Vector2){GetScreenWidth() / 2 - 110, 300});
+
+        draw_quad(ORANGE,
+                  (Vector2){GetScreenWidth() / 2 - 25, 210},
+                  (Vector2){GetScreenWidth() / 2 - 10, 210},
+                  (Vector2){GetScreenWidth() / 2 - 200 + 175 * (1.0f - cpu_avg_f), 300 - 90 * (1.0f - cpu_avg_f)},
+                  (Vector2){GetScreenWidth() / 2 - 110 + 100 * (1.0f - cpu_avg_f), 300 - 90 * (1.0f - cpu_avg_f)});
+
+        draw_quad(faded_orange,
+                  (Vector2){GetScreenWidth() / 2 + 10, 210},
+                  (Vector2){GetScreenWidth() / 2 + 25, 210},
+                  (Vector2){GetScreenWidth() / 2 + 110, 300},
+                  (Vector2){GetScreenWidth() / 2 + 200, 300});
 
         EndDrawing();
     }
