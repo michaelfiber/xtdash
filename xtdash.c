@@ -233,7 +233,6 @@ void get_ram_free()
         if (c == '\n')
         {
             line[length++] = '\0';
-            printf("%s\n", line);
 
             if (strncmp("MemTotal:", line, 9) == 0)
             {
