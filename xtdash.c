@@ -14,7 +14,7 @@ static int cpu_min = 1;
 static int cpu_max = 9999;
 static int cpu_avg = 5555;
 static float cpu_avg_f = 1.0f;
-static int cpu_temp = 74;
+static int cpu_temp = 0;
 static float cpu_temp_f = 1.0f;
 static float free_mem_f = 1.0f;
 static int total_bytes = 0;
@@ -306,7 +306,7 @@ void get_bandwidth()
 
 int main(void)
 {
-    InitWindow(1500, 400, "XT Dashboard");
+    InitWindow(1366, 400, "XT Dashboard");
     SetTargetFPS(30);
 
     char out_temp_text[] = "CPU TEMP";
